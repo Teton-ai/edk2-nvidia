@@ -28,7 +28,7 @@
 								non-volatile;
 							};
 							NewDeviceHierarchy {
-								data = [01];
+								data = [00];
 								runtime;
 								non-volatile;
 							};
@@ -60,7 +60,7 @@
 
 						gNVIDIATokenSpaceGuid {
 							DefaultBootPriority {
-								data = "usb,nvme,emmc,sd,ufs";
+								data = "nvme,usb,emmc,sd,ufs";
 								locked;
 							};
 						};
