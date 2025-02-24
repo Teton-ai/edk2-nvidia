@@ -22,6 +22,16 @@ do {                                                                 \
   }                                                                  \
 } while (FALSE);
 
+#define MOVE_INDEX_TO_END(ARRAY, INDEX, ARRAY_SIZE)                  \
+do {                                                                 \
+  __typeof__((ARRAY)[0]) Value;                                      \
+  if ((INDEX) < (ARRAY_SIZE)-1) {                                    \
+    Value = (ARRAY)[(INDEX)];                                        \
+    CopyMem (&((ARRAY)[(INDEX)]), &((ARRAY)[(INDEX)+1]), ((ARRAY_SIZE)-(INDEX)-1)*sizeof(Value)); \
+    (ARRAY)[(ARRAY_SIZE)-1] = Value;                                 \
+  }                                                                  \
+} while (FALSE);
+
 #define IPMI_GET_BOOT_OPTIONS_PARAMETER_INVALID  1
 #define IPMI_PARAMETER_VERSION                   1
 

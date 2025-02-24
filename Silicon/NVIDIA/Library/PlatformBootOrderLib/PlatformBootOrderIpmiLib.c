@@ -465,6 +465,7 @@ ProcessIPMIBootOrderUpdates (
   UINT16                        DesiredOptionNumber;
   BOOLEAN                       WillModifyBootOrder;
   UINT8                         BootOrderFlags;
+  BOOLEAN                       AppendToEnd;
 
   ClassInstanceList   = NULL;
   BootOrder           = NULL;
@@ -487,6 +488,8 @@ ProcessIPMIBootOrderUpdates (
     goto AcknowledgeAndCleanup;
   }
 
+  AppendToEnd = FALSE;
+
   // TODO update UEFI verbosity based on BootOptionsParameters->Parm5.Data3.Bits.BiosVerbosity?
 
   switch (BootOptionsParameters->Parm5.Data2.Bits.BootDeviceSelector) {
@@ -498,9 +501,9 @@ ProcessIPMIBootOrderUpdates (
       RequestedClassName = "nvme";
       break;
     case IPMI_BOOT_DEVICE_SELECTOR_PXE:
-      // RequestedClassName = IPv6 ? "pxev6" : "pxev4";
-      DEBUG ((DEBUG_WARN, "Ignoring Teton unsupported boot device selector PMI_BOOT_DEVICE_SELECTOR_PXE"))
-      goto AcknowledgeAndCleanup;
+      RequestedClassName = IPv6 ? "pxev6" : "pxev4";
+      AppendToEnd=TRUE;
+      break;
     case IPMI_BOOT_DEVICE_SELECTOR_HARDDRIVE_SAFE_MODE:
       DEBUG ((DEBUG_WARN, "Ignoring unsupported boot device selector IPMI_BOOT_DEVICE_SELECTOR_HARDDRIVE_SAFE_MODE\n"));
       goto AcknowledgeAndCleanup;
@@ -544,9 +547,9 @@ ProcessIPMIBootOrderUpdates (
       RequestedClassName = "sata";
       break;
     case IPMI_BOOT_DEVICE_SELECTOR_REMOTE_CD_DVD:
-      // RequestedClassName = IPv6 ? "httpv6" : "httpv4";
-      DEBUG ((DEBUG_WARN, "Ignoring Teton unsupported boot device selector IPMI_BOOT_DEVICE_SELECTOR_REMOTE_CD_DVD"))
-      goto AcknowledgeAndCleanup;
+      RequestedClassName = IPv6 ? "httpv6" : "httpv4";
+      AppendToEnd=TRUE;
+      break;
     case IPMI_BOOT_DEVICE_SELECTOR_PRIMARY_REMOTE_MEDIA:
       DEBUG ((DEBUG_WARN, "Ignoring unsupported boot device selector IPMI_BOOT_DEVICE_SELECTOR_PRIMARY_REMOTE_MEDIA\n"));
       goto AcknowledgeAndCleanup;
@@ -737,8 +740,13 @@ ProcessIPMIBootOrderUpdates (
 
   // Finally, update the BootOrder if necessary
   if (WillModifyBootOrder) {
-    if (BootOrderIndex > 0) {
-      MOVE_INDEX_TO_START (BootOrder, BootOrderIndex);
+    if (AppendToEnd) {
+      // Move the desired option to the end of the BootOrder
+      MOVE_INDEX_TO_END (BootOrder, BootOrderIndex, BootOrderLength);
+    } else
+      if (BootOrderIndex > 0) {
+        MOVE_INDEX_TO_START (BootOrder, BootOrderIndex);
+      }
     }
 
     if (RequestedInstance == 0) {
@@ -751,7 +759,11 @@ ProcessIPMIBootOrderUpdates (
         }
 
         NV_ASSERT_RETURN (BootOrderIndex > 0, goto AcknowledgeAndCleanup, "%a: Failed to parse BootOrder correctly to find ClassInstance\n", __FUNCTION__);
-        MOVE_INDEX_TO_START (BootOrder, BootOrderIndex);
+        if (AppendToEnd) {
+          MOVE_INDEX_TO_END (BootOrder, BootOrderIndex, BootOrderLength);
+        } else {
+          MOVE_INDEX_TO_START (BootOrder, BootOrderIndex);
+        }
       }
 
       BootOrderIndex = BootOrderLength;
@@ -762,7 +774,11 @@ ProcessIPMIBootOrderUpdates (
         }
 
         NV_ASSERT_RETURN (BootOrderIndex > 0, goto AcknowledgeAndCleanup, "%a: Failed to parse BootOrder correctly to find VirtualInstance\n", __FUNCTION__);
-        MOVE_INDEX_TO_START (BootOrder, BootOrderIndex);
+        if (AppendToEnd) {
+          MOVE_INDEX_TO_END (BootOrder, BootOrderIndex, BootOrderLength);
+        } else {
+          MOVE_INDEX_TO_START (BootOrder, BootOrderIndex);
+        }
       }
     }
 
