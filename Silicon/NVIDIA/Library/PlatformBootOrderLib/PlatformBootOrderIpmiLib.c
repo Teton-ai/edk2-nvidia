@@ -494,12 +494,13 @@ ProcessIPMIBootOrderUpdates (
       DEBUG ((DEBUG_ERROR, "IPMI requested no change to BootOrder\n"));
       goto AcknowledgeAndCleanup;
       break;
-    case IPMI_BOOT_DEVICE_SELECTOR_PXE:
-      RequestedClassName = IPv6 ? "pxev6" : "pxev4";
-      break;
     case IPMI_BOOT_DEVICE_SELECTOR_HARDDRIVE:
       RequestedClassName = "nvme";
       break;
+    case IPMI_BOOT_DEVICE_SELECTOR_PXE:
+      // RequestedClassName = IPv6 ? "pxev6" : "pxev4";
+      DEBUG ((DEBUG_WARN, "Ignoring Teton unsupported boot device selector PMI_BOOT_DEVICE_SELECTOR_PXE"))
+      goto AcknowledgeAndCleanup;
     case IPMI_BOOT_DEVICE_SELECTOR_HARDDRIVE_SAFE_MODE:
       DEBUG ((DEBUG_WARN, "Ignoring unsupported boot device selector IPMI_BOOT_DEVICE_SELECTOR_HARDDRIVE_SAFE_MODE\n"));
       goto AcknowledgeAndCleanup;
@@ -543,8 +544,9 @@ ProcessIPMIBootOrderUpdates (
       RequestedClassName = "sata";
       break;
     case IPMI_BOOT_DEVICE_SELECTOR_REMOTE_CD_DVD:
-      RequestedClassName = IPv6 ? "httpv6" : "httpv4";
-      break;
+      // RequestedClassName = IPv6 ? "httpv6" : "httpv4";
+      DEBUG ((DEBUG_WARN, "Ignoring Teton unsupported boot device selector IPMI_BOOT_DEVICE_SELECTOR_REMOTE_CD_DVD"))
+      goto AcknowledgeAndCleanup;
     case IPMI_BOOT_DEVICE_SELECTOR_PRIMARY_REMOTE_MEDIA:
       DEBUG ((DEBUG_WARN, "Ignoring unsupported boot device selector IPMI_BOOT_DEVICE_SELECTOR_PRIMARY_REMOTE_MEDIA\n"));
       goto AcknowledgeAndCleanup;
