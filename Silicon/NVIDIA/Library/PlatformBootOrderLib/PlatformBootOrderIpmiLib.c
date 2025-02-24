@@ -745,7 +745,9 @@ ProcessIPMIBootOrderUpdates (
       MOVE_INDEX_TO_END (BootOrder, BootOrderIndex, BootOrderLength);
     } else {
       // Move the desired option to the start of the BootOrder
-      MOVE_INDEX_TO_START (BootOrder, BootOrderIndex);
+      if (BootOrderIndex > 0) {
+        MOVE_INDEX_TO_START (BootOrder, BootOrderIndex);
+      }
     }
 
 
