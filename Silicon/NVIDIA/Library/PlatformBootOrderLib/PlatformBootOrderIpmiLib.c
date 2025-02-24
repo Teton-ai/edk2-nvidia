@@ -743,11 +743,11 @@ ProcessIPMIBootOrderUpdates (
     if (AppendToEnd) {
       // Move the desired option to the end of the BootOrder
       MOVE_INDEX_TO_END (BootOrder, BootOrderIndex, BootOrderLength);
-    } else
-      if (BootOrderIndex > 0) {
-        MOVE_INDEX_TO_START (BootOrder, BootOrderIndex);
-      }
+    } else {
+      // Move the desired option to the start of the BootOrder
+      MOVE_INDEX_TO_START (BootOrder, BootOrderIndex);
     }
+
 
     if (RequestedInstance == 0) {
       // Note: In this case the unmoved ClassInstanceList and VirtualInstanceList elements are ordered
